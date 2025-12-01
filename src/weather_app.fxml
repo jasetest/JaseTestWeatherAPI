@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="WeatherController"
+      spacing="10" alignment="CENTER">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+
+    <TextField fx:id="zipInput" promptText="Enter ZIP code" />
+
+    <Button text="Fetch Weather" onAction="#onFetchWeather"/>
+
+    <Label fx:id="locationLabel" text="Location: --" />
+    <Label fx:id="tempLabel" text="Temperature: --" />
+    <Label fx:id="windLabel" text="Wind Speed: --" />
+    <Label fx:id="conditionLabel" text="Condition: --" />
+
+</VBox>

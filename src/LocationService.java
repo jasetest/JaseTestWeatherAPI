@@ -1,3 +1,3 @@
 public interface LocationService {
-    Location lookupByZip(String zipCode) throws ValidateWeather.LocationLookupException;
+    Location getLocation(String zipCode) throws ValidateWeather.WeatherLookupException, ValidateWeather.LocationLookupException;
 }
