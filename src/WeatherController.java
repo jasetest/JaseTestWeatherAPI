@@ -6,16 +6,19 @@ import java.net.http.HttpClient;
 
 public class WeatherController {
 
+    //fxml field
     @FXML private TextField zipInput;
     @FXML private Label locationLabel;
     @FXML private Label tempLabel;
     @FXML private Label windLabel;
     @FXML private Label conditionLabel;
 
+    //setup the services like normal
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final LocationService locationService = new ZippopotamusLocationService(httpClient);
     private final WeatherService weatherService = new OpenMeteoWeatherService(httpClient);
 
+    //handles the button
     @FXML
     private void onFetchWeather() {
         String zip = zipInput.getText().trim();
@@ -25,6 +28,7 @@ public class WeatherController {
         }
 
         try {
+            //method to fetch the weather and update the entire gui
             Location location = locationService.getLocation(zip);
             WeatherData weather = weatherService.getCurrentWeather(location);
 
@@ -32,7 +36,6 @@ public class WeatherController {
             tempLabel.setText(String.format("🌡️ Temperature: %.1f °F", weather.getTemperature()));
             windLabel.setText(String.format("💨 Wind Speed: %.1f mph", weather.getWindSpeed()));
 
-            // Simple condition logic
             String condition;
             if (weather.getPrecipitationProbability() > 50) {
                 condition = "🌧️ Rain likely";
@@ -43,6 +46,7 @@ public class WeatherController {
             }
             conditionLabel.setText("Condition: " + condition);
 
+            //error handling
         } catch (Exception e) {
             locationLabel.setText("Error: " + e.getMessage());
         }

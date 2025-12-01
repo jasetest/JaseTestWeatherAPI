@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class OpenMeteoWeatherService implements WeatherService {
+
+    //using javas built in http client (http://)
     private final HttpClient httpClient;
 
     public OpenMeteoWeatherService(HttpClient httpClient) {
@@ -19,11 +21,12 @@ public class OpenMeteoWeatherService implements WeatherService {
     @Override
     public WeatherData getCurrentWeather(Location location) throws ValidateWeather.WeatherLookupException {
         try {
+            //api request/builds the url
             String url = String.format(
                     "https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&hourly=temperature_2m,precipitation_probability&current=temperature_2m,wind_speed_10m,wind_direction_10m&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch",
                     location.getLatitude(), location.getLongitude()
             );
-
+            //send request
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -32,25 +35,28 @@ public class OpenMeteoWeatherService implements WeatherService {
             HttpResponse<String> response =
                     httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
+            //handle ERRORS :(
             if (response.statusCode() != 200) {
                 throw new ValidateWeather.WeatherLookupException("Bad response: " + response.statusCode());
             }
 
+            //parse JSON
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.body());
 
+
+            //extract current weather thingys
             JsonNode current = root.path("current");
             double temperature = current.path("temperature_2m").asDouble();
             double windSpeed = current.path("wind_speed_10m").asDouble();
             double windDirection = current.path("wind_direction_10m").asDouble();
-
             JsonNode hourly = root.path("hourly");
             JsonNode precipArray = hourly.path("precipitation_probability");
             double precipProb = precipArray.isArray() && precipArray.size() > 0
                     ? precipArray.get(0).asDouble()
                     : 0.0;
 
-
+            //date time thing idk
             LocalDateTime time;
             String timeStr = current.path("time").asText();
             if (!timeStr.isEmpty()) {
@@ -59,6 +65,7 @@ public class OpenMeteoWeatherService implements WeatherService {
                 time = LocalDateTime.now();
             }
 
+            //return the data
             return new WeatherData(location, time, temperature, windSpeed, windDirection, precipProb);
 
         } catch (IOException | InterruptedException e) {
